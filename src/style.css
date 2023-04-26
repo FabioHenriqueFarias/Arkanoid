@@ -1,0 +1,50 @@
+:root {
+    --width: 1000px;
+    --height: 650px;
+  }
+
+  body{
+    background-color: #021F30; 
+  }
+
+  #main {
+    position: relative;
+    width: 1000px;
+    margin: 0 auto;
+    width: var(--width);
+    height: var(--height);
+    font-size: 32px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  #background{
+    border: none;
+  }
+
+  canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 10;
+    border-top: 1px solid grey;
+    border-left: 1px solid grey;
+    border-right: 1px solid grey;
+    margin-bottom: 40px;
+  }
+
+  #display {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    width: var(--width);
+  }
+
+  #start{
+    border-radius: 10px ;
+  }
+
+  #score,
+  #info {
+    width: 200px;
+  }

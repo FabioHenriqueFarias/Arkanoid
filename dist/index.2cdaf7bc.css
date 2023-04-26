@@ -1,0 +1,51 @@
+:root {
+  --width: 1000px;
+  --height: 650px;
+}
+
+body {
+  background-color: #021f30;
+}
+
+#main {
+  width: 1000px;
+  width: var(--width);
+  height: var(--height);
+  margin: 0 auto;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 32px;
+  position: relative;
+}
+
+#background {
+  border: none;
+}
+
+canvas {
+  z-index: 10;
+  border-top: 1px solid gray;
+  border-left: 1px solid gray;
+  border-right: 1px solid gray;
+  margin-bottom: 40px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#display {
+  width: var(--width);
+  justify-content: space-between;
+  display: flex;
+  position: absolute;
+  bottom: 0;
+}
+
+#start {
+  border-radius: 10px;
+}
+
+#score, #info {
+  width: 200px;
+}
+
+/*# sourceMappingURL=index.2cdaf7bc.css.map */
