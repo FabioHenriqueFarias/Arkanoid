@@ -5,7 +5,7 @@ import { Paddle } from "../sprites/Paddle";
 import { Ball } from "../sprites/Ball";
 
 export class CanvasView{
-    private canvas: HTMLCanvasElement;
+    public canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D | null;
     private scoreDisplay: HTMLObjectElement | null;
     private start: HTMLObjectElement | null;
@@ -41,7 +41,7 @@ export class CanvasView{
         }
     }
 
-    srawSprite(brick: Brick | Paddle | Ball): void{
+    drawSprite(brick: Brick | Paddle | Ball): void{
         if(!brick){
             return;
         }
