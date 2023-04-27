@@ -29,7 +29,7 @@ export class CanvasView{
         this.start?.addEventListener('click', () => startFunction(this))
     }
 
-    srawScore(score: number): void {
+    drawScore(score: number): void {
         if(this.scoreDisplay){
             this.scoreDisplay.innerHTML = score.toString();
         }
