@@ -595,6 +595,12 @@ const gameLoop = (view, bricks, paddle, ball, collision)=>{
         score += 1;
         view.drawScore(score);
     }
+    // Game Over when ball leaves playField 
+    if (ball.pos.y > view.canvas.height) gameOver = true;
+    // If fame won, set gameOver and display win
+    if (bricks.length === 0) setGameWin(view);
+    // Return if gameover and don't run the requestAnimationFrame
+    if (gameOver) return setGameOver(view);
     requestAnimationFrame(()=>gameLoop(view, bricks, paddle, ball, collision));
 };
 const startGame = (view)=>{
@@ -971,7 +977,7 @@ class Brick {
         return this.brickImage;
     }
     get energy() {
-        return this.energy;
+        return this.brickEnergy;
     }
     // Setter
     set energy(energy) {

@@ -22,7 +22,7 @@ export class Brick{
     get height(): number { return this.brickHeight};
     get pos(): Vector { return this.position;};
     get image(): HTMLImageElement { return this.brickImage};
-    get energy(): number { return this.energy;};
+    get energy(): number { return this.brickEnergy;};
 
     // Setter
     set energy(energy: number){
