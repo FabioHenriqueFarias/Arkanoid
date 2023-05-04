@@ -559,10 +559,14 @@ function hmrAccept(bundle, id) {
 },{}],"h7u1C":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _canvasView = require("./View/CanvasView");
+var _ball = require("./sprites/Ball");
 var _paddle = require("./sprites/Paddle");
+var _collison = require("./Collison");
 // Imagens
 var _paddlePng = require("./images/paddle.png");
 var _paddlePngDefault = parcelHelpers.interopDefault(_paddlePng);
+var _ballPng = require("./images/ball.png");
+var _ballPngDefault = parcelHelpers.interopDefault(_ballPng);
 // Level and colors
 var _setup = require("./setup");
 var _helpers = require("./helpers");
@@ -576,33 +580,49 @@ const setGameWin = (view)=>{
     view.drawInfo("Game Won!");
     gameOver = false;
 };
-const gameLoop = (view, bricks, paddle)=>{
+const gameLoop = (view, bricks, paddle, ball, collision)=>{
     view.clear();
     view.drawBrick(bricks);
     view.drawSprite(paddle);
+    view.drawSprite(ball);
+    //Move Ball
+    ball.moveBall();
     // Move paddle and check so it won't exit the playfield
     if (paddle.isMovingLeft && paddle.pos.x > 0 || paddle.isMovingRight && paddle.pos.x < view.canvas.width - paddle.width) paddle.movePaddle();
-    requestAnimationFrame(()=>gameLoop(view, bricks, paddle));
+    collision.checkBallCollision(ball, paddle, view);
+    const collidingBrick = collision.isCollidingBricks(ball, bricks);
+    if (collidingBrick) {
+        score += 1;
+        view.drawScore(score);
+    }
+    requestAnimationFrame(()=>gameLoop(view, bricks, paddle, ball, collision));
 };
 const startGame = (view)=>{
     // Reset displays
     score = 0;
     view.drawInfo("");
     view.drawScore(0);
+    // Create a collision instance
+    const collision = new (0, _collison.Collision)();
     // create all bricks
     const bricks = (0, _helpers.createBricks)();
+    // Create a Ball
+    const ball = new (0, _ball.Ball)((0, _setup.BALL_SPEED), (0, _setup.BALL_SIZE), {
+        x: (0, _setup.BALL_STARTX),
+        y: (0, _setup.BALL_STARTY)
+    }, (0, _ballPngDefault.default));
     // Create a Paddle
     const paddle = new (0, _paddle.Paddle)((0, _setup.PADDLE_SPEED), (0, _setup.PADDLE_WIDTH), (0, _setup.PADDLE_HEIGHT), {
         x: (0, _setup.PADDLE_STARTX),
         y: view.canvas.height - (0, _setup.PADDLE_HEIGHT) - 5
     }, (0, _paddlePngDefault.default));
-    gameLoop(view, bricks, paddle);
+    gameLoop(view, bricks, paddle, ball, collision);
 };
 // create a new View
 const view = new (0, _canvasView.CanvasView)("#playField");
 view.initStartButton(startGame);
 
-},{"./View/CanvasView":"6BbeN","./sprites/Paddle":"lwmcw","./images/paddle.png":"79ore","./setup":"1ctuX","./helpers":"adjmJ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6BbeN":[function(require,module,exports) {
+},{"./View/CanvasView":"6BbeN","./sprites/Paddle":"lwmcw","./images/paddle.png":"79ore","./setup":"1ctuX","./helpers":"adjmJ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./sprites/Ball":"17CCB","./Collison":"5yXMY","./images/ball.png":"5LtMd"}],"6BbeN":[function(require,module,exports) {
 // Types
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
@@ -959,6 +979,86 @@ class Brick {
     }
 }
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["3LmCz","h7u1C"], "h7u1C", "parcelRequire7581")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"17CCB":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Ball", ()=>Ball);
+class Ball {
+    constructor(speed, ballSize, position, image){
+        this.ballSize = ballSize;
+        this.position = position;
+        this.ballImage = new Image();
+        this.ballSize = ballSize;
+        this.position = position;
+        this.speed = {
+            x: speed,
+            y: -speed
+        };
+        this.ballImage.src = image;
+    }
+    // Getters
+    get width() {
+        return this.ballSize;
+    }
+    get height() {
+        return this.ballSize;
+    }
+    get pos() {
+        return this.position;
+    }
+    get image() {
+        return this.ballImage;
+    }
+    // Methods
+    changeYDirection() {
+        this.speed.y = -this.speed.y;
+    }
+    changeXDirection() {
+        this.speed.x = -this.speed.x;
+    }
+    moveBall() {
+        this.pos.x += this.speed.x;
+        this.pos.y += this.speed.y;
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5yXMY":[function(require,module,exports) {
+// Types 
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "Collision", ()=>Collision);
+class Collision {
+    isCollidingBrick(ball, brick) {
+        if (ball.pos.x < brick.pos.x + brick.width && ball.pos.x + ball.width > brick.pos.x && ball.pos.y < brick.pos.y + brick.height && ball.pos.y + ball.height > brick.pos.y) return true;
+        return false;
+    }
+    // Check ball collision with bricks
+    isCollidingBricks(ball, bricks) {
+        let colliding = false;
+        bricks.forEach((brick, i)=>{
+            if (this.isCollidingBrick(ball, brick)) {
+                ball.changeYDirection();
+                if (brick.energy === 1) bricks.splice(i, 1);
+                else brick.energy -= 1;
+                colliding = true;
+            }
+        });
+        return colliding;
+    }
+    checkBallCollision(ball, paddle, view) {
+        //? 1. Check ball collision with paddle
+        if (ball.pos.x + ball.width > paddle.pos.x && ball.pos.x < paddle.pos.x + paddle.width && ball.pos.y + ball.height === paddle.pos.y) ball.changeYDirection();
+        //? 2. Check ball collision with walls
+        //* Ball movement x constraints
+        if (ball.pos.x > view.canvas.width - ball.width || ball.pos.x < 0) ball.changeXDirection();
+        //* Ball movement Y constraints 
+        if (ball.pos.y < 0) ball.changeYDirection();
+    }
+}
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"5LtMd":[function(require,module,exports) {
+module.exports = require("b69e0fabe2c39efb").getBundleURL("7UhFu") + "ball.9af8dd59.png" + "?" + Date.now();
+
+},{"b69e0fabe2c39efb":"lgJ39"}]},["3LmCz","h7u1C"], "h7u1C", "parcelRequire7581")
 
 //# sourceMappingURL=index.b71e74eb.js.map

@@ -2,6 +2,7 @@ import { CanvasView } from "./View/CanvasView";
 import { Ball } from "./sprites/Ball"; 
 import { Brick } from "./sprites/Brick";
 import { Paddle } from "./sprites/Paddle";
+import { Collision } from "./Collison";
 
 // Imagens
 
@@ -40,7 +41,8 @@ const gameLoop = (
     view: CanvasView,
     bricks: Brick[],
     paddle: Paddle,
-    ball: Ball
+    ball: Ball, 
+    collision: Collision
     ) => {
         view.clear();
         view.drawBrick(bricks);
@@ -59,7 +61,15 @@ const gameLoop = (
             paddle.movePaddle();
         }
 
-        requestAnimationFrame(() => gameLoop(view, bricks, paddle, ball))
+        collision.checkBallCollision(ball, paddle, view);
+        const collidingBrick = collision.isCollidingBricks(ball, bricks);
+
+        if(collidingBrick){
+            score += 1;
+            view.drawScore(score);
+        }
+
+        requestAnimationFrame(() => gameLoop(view, bricks, paddle, ball, collision))
 }
 
 const startGame = (view: CanvasView) =>{
@@ -67,6 +77,9 @@ const startGame = (view: CanvasView) =>{
     score = 0;
     view.drawInfo('');
     view.drawScore(0);
+
+    // Create a collision instance
+    const collision = new Collision();
 
     // create all bricks
     const bricks = createBricks();
@@ -80,7 +93,7 @@ const startGame = (view: CanvasView) =>{
             y:BALL_STARTY
         },
         BALL_IMAGE
-    )
+    )    
 
     // Create a Paddle
     const paddle = new Paddle(
@@ -94,10 +107,9 @@ const startGame = (view: CanvasView) =>{
         PADDLE_IMAGE
     );
 
-    gameLoop(view, bricks, paddle, ball);
+    gameLoop(view, bricks, paddle, ball, collision);
 }
 
 // create a new View
-
 const view = new CanvasView('#playField');
 view.initStartButton(startGame);

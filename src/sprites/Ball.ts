@@ -49,7 +49,7 @@ export class Ball{
     }
 
     moveBall(): void {
-        this.pos.x += this.pos.x + this.speed.x;
-        this.pos.y += this.pos.y + this.speed.y;
+        this.pos.x += this.speed.x;
+        this.pos.y += this.speed.y;
     }
 }
